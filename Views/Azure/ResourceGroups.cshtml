@@ -1,0 +1,88 @@
+@model ghCopilot.Controllers.ResourceGroupsViewModel
+@{
+    ViewData["Title"] = "Resource Groups";
+}
+
+<div class="container">
+    <h2>Resource Groups</h2>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index")">Azure Status</a></li>
+            <li class="breadcrumb-item active">Resource Groups</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-12">
+            @if (!string.IsNullOrEmpty(Model.SubscriptionId))
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Subscription ID</h6>
+                        <code>@Model.SubscriptionId</code>
+                    </div>
+                </div>
+            }
+
+            @if (Model.ErrorMessage != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5>Error</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-danger">@Model.ErrorMessage</p>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">Back to Azure Status</a>
+                    </div>
+                </div>
+            }
+            else if (Model.ResourceGroups.Any())
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Resource Groups (@Model.ResourceGroups.Count)</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>The following resource groups were found in this subscription using the Azure REST API:</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Location</th>
+                                        <th>Resource ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var resourceGroup in Model.ResourceGroups)
+                                    {
+                                        <tr>
+                                            <td><strong>@resourceGroup.Name</strong></td>
+                                            <td>@resourceGroup.Location</td>
+                                            <td><code class="small">@resourceGroup.Id</code></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">Back to Azure Status</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Resource Groups</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">No resource groups found in this subscription.</p>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">Back to Azure Status</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
