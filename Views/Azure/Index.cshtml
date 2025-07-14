@@ -1,0 +1,106 @@
+@model ghCopilot.Controllers.AzureStatusViewModel
+@{
+    ViewData["Title"] = "Azure Integration Status";
+}
+
+<div class="container">
+    <h2>Azure Integration Status</h2>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Authentication Status</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.IsAuthenticated)
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Azure authentication is active and working.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Azure authentication is not configured.
+                            <br />
+                            <small>Please ensure the following environment variables are set:</small>
+                            <ul>
+                                <li><code>AZURE_TENANT_ID</code></li>
+                                <li><code>AZURE_CLIENT_ID</code></li>
+                                <li><code>AZURE_CLIENT_SECRET</code></li>
+                            </ul>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (Model.ErrorMessage != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5>Error</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-danger">@Model.ErrorMessage</p>
+                    </div>
+                </div>
+            }
+
+            @if (Model.IsAuthenticated && Model.Subscriptions.Any())
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Azure Subscriptions</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>The following subscriptions are accessible with your configured credentials:</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Subscription Name</th>
+                                        <th>Subscription ID</th>
+                                        <th>State</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var subscription in Model.Subscriptions)
+                                    {
+                                        <tr>
+                                            <td>@subscription.DisplayName</td>
+                                            <td><code>@subscription.Id</code></td>
+                                            <td>
+                                                <span class="badge @(subscription.State == "Enabled" ? "bg-success" : "bg-secondary")">
+                                                    @subscription.State
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("ResourceGroups", new { subscriptionId = subscription.Id })" 
+                                                   class="btn btn-sm btn-primary">
+                                                    View Resource Groups
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (Model.IsAuthenticated && !Model.Subscriptions.Any())
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Azure Subscriptions</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">No subscriptions found or accessible with the current credentials.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
